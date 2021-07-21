@@ -1,0 +1,104 @@
+Loading graph min-1DeadEnd.mtx ...
+order: 5 size: 6 {}
+[00001.522 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00000.570 ms; 017 iters.] [1.3411e-7 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph min-2SCC.mtx ...
+order: 8 size: 12 {}
+[00003.923 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00001.187 ms; 040 iters.] [9.1270e-7 err.] pagerankCuda<<<1024, 32>>>
+
+Loading graph min-4SCC.mtx ...
+order: 21 size: 35 {}
+[00004.429 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00001.253 ms; 045 iters.] [6.1188e-7 err.] pagerankCuda<<<4096, 64>>>
+
+Loading graph min-NvgraphEx.mtx ...
+order: 6 size: 10 {}
+[00002.524 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00000.743 ms; 024 iters.] [2.9802e-8 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph web-Stanford.mtx ...
+order: 281903 size: 2312497 {}
+[00011.441 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00030.503 ms; 063 iters.] [7.1421e-7 err.] pagerankCuda<<<4096, 64>>>
+
+Loading graph web-BerkStan.mtx ...
+order: 685230 size: 7600595 {}
+[00016.148 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00066.690 ms; 064 iters.] [9.6408e-7 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph web-Google.mtx ...
+order: 916428 size: 5105039 {}
+[00021.375 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00045.975 ms; 062 iters.] [1.2786e-6 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph web-NotreDame.mtx ...
+order: 325729 size: 1497134 {}
+[00009.352 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00019.862 ms; 058 iters.] [2.9347e-6 err.] pagerankCuda<<<16384, 64>>>
+
+Loading graph soc-Slashdot0811.mtx ...
+order: 77360 size: 905468 {}
+[00007.212 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00005.320 ms; 055 iters.] [9.1691e-7 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph soc-Slashdot0902.mtx ...
+order: 82168 size: 948464 {}
+[00007.341 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00005.575 ms; 056 iters.] [8.3564e-7 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph soc-Epinions1.mtx ...
+order: 75888 size: 508837 {}
+[00007.442 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00004.638 ms; 054 iters.] [1.4202e-6 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph coAuthorsDBLP.mtx ...
+order: 299067 size: 1955352 {}
+[00007.717 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00012.651 ms; 045 iters.] [2.9306e-6 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph coAuthorsCiteseer.mtx ...
+order: 227320 size: 1628268 {}
+[00007.463 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00010.629 ms; 048 iters.] [2.1884e-6 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph soc-LiveJournal1.mtx ...
+order: 4847571 size: 68993773 {}
+[00168.517 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00288.981 ms; 051 iters.] [3.2250e-6 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph coPapersCiteseer.mtx ...
+order: 434102 size: 32073440 {}
+[00026.152 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00029.139 ms; 051 iters.] [1.8927e-6 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph coPapersDBLP.mtx ...
+order: 540486 size: 30491458 {}
+[00024.925 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00032.114 ms; 049 iters.] [1.4526e-6 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph indochina-2004.mtx ...
+order: 7414866 size: 194109311 {}
+[00194.420 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00474.027 ms; 060 iters.] [1.6449e-6 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph italy_osm.mtx ...
+order: 6686493 size: 14027956 {}
+[00062.249 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00345.299 ms; 063 iters.] [6.4566e-7 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph great-britain_osm.mtx ...
+order: 7733822 size: 16313034 {}
+[00077.267 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00424.516 ms; 067 iters.] [1.6192e-7 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph germany_osm.mtx ...
+order: 11548845 size: 24738362 {}
+[00114.202 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00617.038 ms; 065 iters.] [2.0171e-7 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph asia_osm.mtx ...
+order: 11950757 size: 25423206 {}
+[00107.900 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00618.396 ms; 063 iters.] [6.7836e-7 err.] pagerankCuda<<<16384, 32>>>
