@@ -75,17 +75,22 @@ template <class T>
 __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, const int *vfrom, const int *efrom, const int *vdata, int i, int n, int N, T p, T E, int L, int GP, int BP) {
   DEFINE(t, b, B, G);
   UNUSED(B); UNUSED(G);
-  if (t>0 || b>0) return;
+  if (t>1 || b>0) return;
   int l = 1;
-  pagerankFactorCu(f, vdata, 0, N, p);
+  if (t==0) pagerankFactorCu(f, vdata, 0, N, p);
+  __syncthreads();
   for (; l<L; l++) {
-    multiplyCu(c+i, r+i, f+i, n);
-    sumIfNotInplaceCu(t0, r, vdata, N);
-    cudaDeviceSynchronize();
+    if (t==0) multiplyCu(c+i, r+i, f+i, n);
+    if (t==1) sumIfNotInplaceCu(t0, r, vdata, N);
+    __syncthreads();
+    if (t==0) cudaDeviceSynchronize();
+    __syncthreads();
     T c0 = (1-p)/N + p*(*t0)/N;
-    pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
-    l1NormInplaceCu(t0, r+i, a+i, n);
-    cudaDeviceSynchronize();
+    if (t==0) pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
+    if (t==0) l1NormInplaceCu(t0, r+i, a+i, n);
+    __syncthreads();
+    if (t==0) cudaDeviceSynchronize();
+    __syncthreads();
     if (*t0 < E) break;
     swapCu(a, r);
   }
@@ -136,7 +141,7 @@ PagerankResult<T> pagerankCuda(H& xt, const vector<T> *q=nullptr, PagerankOption
     else fill(r, T(1)/N);
     TRY( cudaMemcpy(aD, a.data(), N1, cudaMemcpyHostToDevice) );
     TRY( cudaMemcpy(rD, r.data(), N1, cudaMemcpyHostToDevice) );
-    mark([&] { pagerankCudaLoopKernel<<<1, 1>>>(i0D, t0D, aD, rD, cD, fD, vfromD, efromD, vdataD, 0, N, N, p, E, L, G, B); });
+    mark([&] { pagerankCudaLoopKernel<<<1, 2>>>(i0D, t0D, aD, rD, cD, fD, vfromD, efromD, vdataD, 0, N, N, p, E, L, G, B); });
     mark([&] { TRY( cudaDeviceSynchronize() ); });
   }, o.repeat);
   TRY( cudaMemcpy(&l,       i0D,        I1, cudaMemcpyDeviceToHost) );
