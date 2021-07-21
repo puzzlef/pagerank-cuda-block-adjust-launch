@@ -28,10 +28,10 @@ __global__ void pagerankFactorKernel(T *a, const int *vdata, int i, int n, T p) 
 }
 
 template <class T>
-__host__ __device__ void pagerankFactorCu(T *a, const int *vdata, int i, int n, T p) {
+__host__ __device__ void pagerankFactorCu(T *a, const int *vdata, int i, int n, T p, cudaStream_t s=NULL) {
   int B = BLOCK_DIM_M<T>();
   int G = min(ceilDiv(n, B), GRID_DIM_M<T>());
-  pagerankFactorKernel<<<G, B>>>(a, vdata, i, n, p);
+  pagerankFactorKernel<<<G, B, 0, s>>>(a, vdata, i, n, p);
 }
 
 
@@ -54,8 +54,8 @@ __global__ void pagerankBlockKernel(T *a, const T *c, const int *vfrom, const in
 }
 
 template <class T>
-__host__ __device__ void pagerankBlockCu(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B) {
-  pagerankBlockKernel<<<G, B>>>(a, c, vfrom, efrom, i, n, c0);
+__host__ __device__ void pagerankBlockCu(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B, cudaStream_t s=NULL) {
+  pagerankBlockKernel<<<G, B, 0, s>>>(a, c, vfrom, efrom, i, n, c0);
 }
 
 
@@ -80,18 +80,20 @@ __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, c
   cudaStream_t s0, s1;
   cudaStreamCreateWithFlags(&s0, cudaStreamNonBlocking);
   cudaStreamCreateWithFlags(&s1, cudaStreamNonBlocking);
-  pagerankFactorCu(f, vdata, 0, N, p);
+  pagerankFactorCu(f, vdata, 0, N, p, s0);
   for (; l<L; l++) {
     multiplyCu(c+i, r+i, f+i, n, s0);
     sumIfNotInplaceCu(t0, r, vdata, N, s1);
     cudaDeviceSynchronize();
     T c0 = (1-p)/N + p*(*t0)/N;
-    pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
-    l1NormInplaceCu(t0, r+i, a+i, n);
+    pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP, s0);
+    l1NormInplaceCu(t0, r+i, a+i, n, s0);
     cudaDeviceSynchronize();
     if (*t0 < E) break;
     swapCu(a, r);
   }
+  cudaStreamDestroy(s0);
+  cudaStreamDestroy(s1);
   *i0 = l;
 }
 

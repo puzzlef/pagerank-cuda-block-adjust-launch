@@ -441,11 +441,11 @@ void l1NormMemcpyCu(T *a, const T *x, const T *y, int N) {
 }
 
 template <class T>
-__device__ void l1NormInplaceCu(T *a, const T *x, const T *y, int N) {
+__device__ void l1NormInplaceCu(T *a, const T *x, const T *y, int N, cudaStream_t s=NULL) {
   const int B = BLOCK_DIM_R<T>();
   const int G = min(ceilDiv(N, B), GRID_DIM_R<T>());
-  l1NormKernel<<<G, B>>>(a, x, y, N);
-  sumKernel<<<1, G>>>(a, a, G);
+  l1NormKernel<<<G, B, 0, s>>>(a, x, y, N);
+  sumKernel<<<1, G, 0, s>>>(a, a, G);
 }
 
 template <class T>
