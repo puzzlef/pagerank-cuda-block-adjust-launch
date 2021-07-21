@@ -1,8 +1,9 @@
 Comparing various launch configs for **CUDA block-per-vertex** based PageRank
 ([pull], [CSR]).
 
-This branch uses a simple pagerank-loop kernel which runs on GPU instead.
-Results indicate this is **slower** than pagerank-loop on the CPU ([static]).
+This branch uses 2-thread based pagerank-loop kernel which runs on GPU instead.
+Results indicate this is **slower** than simple pagerank-loop on the CPU
+([static]), and **equal speed** as simple pagerank-loop on GPU ([dynamic]).
 
 All outputs are saved in [out](out/). The input data used for this experiment
 is available at ["graphs"] (for small ones), and the [SuiteSparse Matrix Collection].
@@ -48,3 +49,5 @@ $ ...
 [nvGraph]: https://github.com/rapidsai/nvgraph
 [pull]: https://github.com/puzzlef/pagerank-push-vs-pull
 [csr]: https://github.com/puzzlef/pagerank-class-vs-csr
+[static]: https://github.com/puzzlef/pagerank-cuda-block-adjust-launch/tree/static
+[dynamic]: https://github.com/puzzlef/pagerank-cuda-block-adjust-launch/tree/dynamic
