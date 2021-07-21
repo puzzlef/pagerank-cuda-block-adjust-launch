@@ -28,7 +28,7 @@ __global__ void pagerankFactorKernel(T *a, const int *vdata, int i, int n, T p) 
 }
 
 template <class T>
-void pagerankFactorCu(T *a, const int *vdata, int i, int n, T p) {
+__host__ __device__ void pagerankFactorCu(T *a, const int *vdata, int i, int n, T p) {
   int B = BLOCK_DIM_M<T>();
   int G = min(ceilDiv(n, B), GRID_DIM_M<T>());
   pagerankFactorKernel<<<G, B>>>(a, vdata, i, n, p);
@@ -54,7 +54,7 @@ __global__ void pagerankBlockKernel(T *a, const T *c, const int *vfrom, const in
 }
 
 template <class T>
-void pagerankBlockCu(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B) {
+__host__ __device__ void pagerankBlockCu(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B) {
   pagerankBlockKernel<<<G, B>>>(a, c, vfrom, efrom, i, n, c0);
 }
 
@@ -71,26 +71,25 @@ auto pagerankWave(const G& xt, J&& ks) {
 // PAGERANK (CUDA)
 // ---------------
 
-template <class T, class J>
-int pagerankCudaLoop(T *e, T *r0, T *eD, T *r0D, T *&aD, T *&rD, T *cD, const T *fD, const int *vfromD, const int *efromD, const int *vdataD, int i, J&& ns, int N, T p, T E, int L, int G, int B) {
-  int n = sumAbs(ns);
-  int R = reduceSizeCu<T>(n);
-  size_t R1 = R * sizeof(T);
-  T c0 = (1-p)/N;
+template <class T>
+__global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, const int *vfrom, const int *efrom, const int *vdata, int i, int n, int N, T p, T E, int L, int GP, int BP) {
+  DEFINE(t, b, B, G);
+  UNUSED(B); UNUSED(G);
+  if (t>0 || b>0) return;
   int l = 1;
+  pagerankFactorCu(f, vdata, 0, N, p);
   for (; l<L; l++) {
-    sumIfNotCu(r0D, rD, vdataD, N);
-    multiplyCu(cD+i, rD+i, fD+i, n);
-    TRY( cudaMemcpy(r0, r0D, R1, cudaMemcpyDeviceToHost) );
-    T c0 = (1-p)/N + p*sum(r0, R)/N;
-    pagerankBlockCu(aD, cD, vfromD, efromD, i, n, c0, G, B);
-    l1NormCu(eD, rD+i, aD+i, n);
-    TRY( cudaMemcpy(e, eD, R1, cudaMemcpyDeviceToHost) );
-    T el = sum(e, R);
-    if (el < E) break;
-    swap(aD, rD);
+    multiplyCu(c+i, r+i, f+i, n);
+    sumIfNotInplaceCu(t0, r, vdata, N);
+    cudaDeviceSynchronize();
+    T c0 = (1-p)/N + p*(*t0)/N;
+    pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
+    l1NormInplaceCu(t0, r+i, a+i, n);
+    cudaDeviceSynchronize();
+    if (*t0 < E) break;
+    swapCu(a, r);
   }
-  return l;
+  *i0 = l;
 }
 
 
@@ -113,17 +112,14 @@ PagerankResult<T> pagerankCuda(H& xt, const vector<T> *q=nullptr, PagerankOption
   int VDATA1 = vdata.size() * sizeof(int);
   int N1 = N * sizeof(T);
   int R1 = R * sizeof(T);
+  int I1 = 1 * sizeof(int);
   vector<T> a(N), r(N);
 
-  T *e,  *r0;
-  T *eD, *r0D, *fD, *rD, *cD, *aD;
-  int *vfromD, *efromD, *vdataD;
+  T *t0D, *fD, *rD, *cD, *aD;
+  int *i0D, *vfromD, *efromD, *vdataD;
   // TRY( cudaProfilerStart() );
-  TRY( cudaSetDeviceFlags(cudaDeviceMapHost) );
-  TRY( cudaHostAlloc(&e,  R1, cudaHostAllocDefault) );
-  TRY( cudaHostAlloc(&r0, R1, cudaHostAllocDefault) );
-  TRY( cudaMalloc(&eD,  R1) );
-  TRY( cudaMalloc(&r0D, R1) );
+  TRY( cudaMalloc(&i0D, I1) );
+  TRY( cudaMalloc(&t0D, R1) );
   TRY( cudaMalloc(&aD, N1) );
   TRY( cudaMalloc(&rD, N1) );
   TRY( cudaMalloc(&cD, N1) );
@@ -140,15 +136,14 @@ PagerankResult<T> pagerankCuda(H& xt, const vector<T> *q=nullptr, PagerankOption
     else fill(r, T(1)/N);
     TRY( cudaMemcpy(aD, a.data(), N1, cudaMemcpyHostToDevice) );
     TRY( cudaMemcpy(rD, r.data(), N1, cudaMemcpyHostToDevice) );
-    mark([&] { pagerankFactorCu(fD, vdataD, 0, N, p); });
-    mark([&] { l = pagerankCudaLoop(e, r0, eD, r0D, aD, rD, cD, fD, vfromD, efromD, vdataD, 0, ns, N, p, E, L, G, B); });
+    mark([&] { pagerankCudaLoopKernel<<<1, 1>>>(i0D, t0D, aD, rD, cD, fD, vfromD, efromD, vdataD, 0, N, N, p, E, L, G, B); });
+    mark([&] { TRY( cudaDeviceSynchronize() ); });
   }, o.repeat);
-  TRY( cudaMemcpy(a.data(), aD, N1, cudaMemcpyDeviceToHost) );
+  TRY( cudaMemcpy(&l,       i0D,        I1, cudaMemcpyDeviceToHost) );
+  TRY( cudaMemcpy(a.data(), l&1? aD:rD, N1, cudaMemcpyDeviceToHost) );
 
-  TRY( cudaFreeHost(e) );
-  TRY( cudaFreeHost(r0) );
-  TRY( cudaFree(eD) );
-  TRY( cudaFree(r0D) );
+  TRY( cudaFree(i0D) );
+  TRY( cudaFree(t0D) );
   TRY( cudaFree(aD) );
   TRY( cudaFree(rD) );
   TRY( cudaFree(cD) );
