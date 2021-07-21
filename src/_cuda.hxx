@@ -396,11 +396,11 @@ void sumIfNotMemcpyCu(T *a, const T *x, const C *cs, int N) {
 }
 
 template <class T, class C>
-__device__ void sumIfNotInplaceCu(T *a, const T *x, const C *cs, int N) {
+__device__ void sumIfNotInplaceCu(T *a, const T *x, const C *cs, int N, cudaStream_t s=NULL) {
   const int B = BLOCK_DIM_R<T>();
   const int G = min(ceilDiv(N, B), GRID_DIM_R<T>());
-  sumIfNotKernel<<<G, B>>>(a, x, cs, N);
-  sumKernel<<<1, G>>>(a, a, G);
+  sumIfNotKernel<<<G, B, 0, s>>>(a, x, cs, N);
+  sumKernel<<<1, G, 0, s>>>(a, a, G);
 }
 
 template <class T, class C>
@@ -565,8 +565,8 @@ __global__ void multiplyKernel(T *a, const T *x, const T* y, int N) {
 
 
 template <class T>
-__host__ __device__ void multiplyCu(T *a, const T *x, const T* y, int N) {
+__host__ __device__ void multiplyCu(T *a, const T *x, const T* y, int N, cudaStream_t s=NULL) {
   const int B = BLOCK_DIM_M<T>();
   const int G = min(ceilDiv(N, B), GRID_DIM_M<T>());
-  multiplyKernel<<<G, B>>>(a, x, y, N);
+  multiplyKernel<<<G, B, 0, s>>>(a, x, y, N);
 }

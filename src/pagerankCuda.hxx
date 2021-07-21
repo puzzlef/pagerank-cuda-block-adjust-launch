@@ -77,10 +77,13 @@ __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, c
   UNUSED(B); UNUSED(G);
   if (t>0 || b>0) return;
   int l = 1;
+  cudaStream_t s0, s1;
+  cudaStreamCreateWithFlags(&s0, cudaStreamNonBlocking);
+  cudaStreamCreateWithFlags(&s1, cudaStreamNonBlocking);
   pagerankFactorCu(f, vdata, 0, N, p);
   for (; l<L; l++) {
-    multiplyCu(c+i, r+i, f+i, n);
-    sumIfNotInplaceCu(t0, r, vdata, N);
+    multiplyCu(c+i, r+i, f+i, n, s0);
+    sumIfNotInplaceCu(t0, r, vdata, N, s1);
     cudaDeviceSynchronize();
     T c0 = (1-p)/N + p*(*t0)/N;
     pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
