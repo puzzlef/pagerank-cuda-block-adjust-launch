@@ -1,0 +1,64 @@
+Loading graph min-1DeadEnd.mtx ...
+order: 5 size: 6 {}
+[00001.715 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00003.486 ms; 017 iters.] [1.3411e-7 err.] pagerankCuda<<<32768, 512>>>
+
+Loading graph min-2SCC.mtx ...
+order: 8 size: 12 {}
+[00004.032 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00008.048 ms; 040 iters.] [9.1270e-7 err.] pagerankCuda<<<32768, 1024>>>
+
+Loading graph min-4SCC.mtx ...
+order: 21 size: 35 {}
+[00004.075 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00009.025 ms; 045 iters.] [6.1188e-7 err.] pagerankCuda<<<2048, 32>>>
+
+Loading graph min-NvgraphEx.mtx ...
+order: 6 size: 10 {}
+[00002.262 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00004.844 ms; 024 iters.] [2.9802e-8 err.] pagerankCuda<<<2048, 1024>>>
+
+Loading graph web-Stanford.mtx ...
+order: 281903 size: 2312497 {}
+[00011.691 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00321.950 ms; 500 iters.] [7.0605e-7 err.] pagerankCuda<<<4096, 64>>>
+
+Loading graph web-BerkStan.mtx ...
+order: 685230 size: 7600595 {}
+[00016.648 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00597.332 ms; 500 iters.] [8.4593e-7 err.] pagerankCuda<<<32768, 64>>>
+
+Loading graph web-Google.mtx ...
+order: 916428 size: 5105039 {}
+[00021.465 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00534.019 ms; 500 iters.] [4.0801e-7 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph web-NotreDame.mtx ...
+order: 325729 size: 1497134 {}
+[00008.817 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00263.444 ms; 500 iters.] [1.2656e-6 err.] pagerankCuda<<<32768, 32>>>
+
+Loading graph soc-Slashdot0811.mtx ...
+order: 77360 size: 905468 {}
+[00006.722 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00100.282 ms; 500 iters.] [1.4050e-4 err.] pagerankCuda<<<1024, 32>>>
+
+Loading graph soc-Slashdot0902.mtx ...
+order: 82168 size: 948464 {}
+[00006.844 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00099.958 ms; 500 iters.] [2.5632e-2 err.] pagerankCuda<<<2048, 32>>>
+
+Loading graph soc-Epinions1.mtx ...
+order: 75888 size: 508837 {}
+[00006.903 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00099.918 ms; 500 iters.] [4.9012e-2 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph coAuthorsDBLP.mtx ...
+order: 299067 size: 1955352 {}
+[00007.592 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00000.689 ms; 001 iters.] [2.4237e-1 err.] pagerankCuda<<<16384, 32>>>
+
+Loading graph coAuthorsCiteseer.mtx ...
+order: 227320 size: 1628268 {}
+[00007.038 ms; 000 iters.] [0.0000e+0 err.] pagerankNvgraph
+[00000.575 ms; 001 iters.] [2.2883e-1 err.] pagerankCuda<<<16384, 32>>>

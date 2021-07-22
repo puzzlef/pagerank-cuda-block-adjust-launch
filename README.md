@@ -1,8 +1,10 @@
 Comparing various launch configs for **CUDA block-per-vertex** based PageRank
 ([pull], [CSR]).
 
-This branch uses a simple pagerank-loop kernel which runs on GPU instead.
-Results indicate this is **slower** than pagerank-loop on the CPU ([static]).
+This branch issues error check kernel, but doesn't wait for it to complete.
+It uses a simple pagerank-loop kernel which runs on GPU instead. Results
+indicate this is **incorrect** as its causes pagerank to keep running until it
+crosses `max_iterations` limit.
 
 All outputs are saved in [out](out/). The input data used for this experiment
 is available at ["graphs"] (for small ones), and the [SuiteSparse Matrix Collection].
