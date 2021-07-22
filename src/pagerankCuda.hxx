@@ -77,6 +77,7 @@ __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, c
   UNUSED(B); UNUSED(G);
   if (t>0 || b>0) return;
   int l = 1;
+  volatile T *vt0 = t0;
   pagerankFactorCu(f, vdata, 0, N, p);
   for (; l<L; l++) {
     multiplyCu(c+i, r+i, f+i, n);
@@ -85,8 +86,7 @@ __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, c
     T c0 = (1-p)/N + p*(*t0)/N;
     pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
     l1NormInplaceCu(t0, r+i, a+i, n);
-    cudaDeviceSynchronize();
-    if (*t0 < E) break;
+    if (*vt0 < E) break;
     swapCu(a, r);
   }
   *i0 = l;
