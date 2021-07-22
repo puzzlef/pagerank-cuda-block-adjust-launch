@@ -41,21 +41,21 @@ __host__ __device__ void pagerankFactorCu(T *a, const int *vdata, int i, int n, 
 // --------------
 
 template <class T, int S=BLOCK_LIMIT>
-__global__ void pagerankBlockKernel(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0) {
+__global__ void pagerankBlockKernel(T *a, const T *r, const T *f, const int *vfrom, const int *efrom, int i, int n, T c0) {
   DEFINE(t, b, B, G);
   __shared__ T cache[S];
   for (int v=i+b; v<i+n; v+=G) {
     int ebgn = vfrom[v];
     int ideg = vfrom[v+1]-vfrom[v];
-    cache[t] = sumAtKernelLoop(c, efrom+ebgn, ideg, t, B);
+    cache[t] = sumMultiplyAtKernelLoop(r, f, efrom+ebgn, ideg, t, B);
     sumKernelReduce(cache, B, t);
     if (t==0) a[v] = c0 + cache[0];
   }
 }
 
 template <class T>
-__host__ __device__ void pagerankBlockCu(T *a, const T *c, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B) {
-  pagerankBlockKernel<<<G, B>>>(a, c, vfrom, efrom, i, n, c0);
+__host__ __device__ void pagerankBlockCu(T *a, const T *r, const T *f, const int *vfrom, const int *efrom, int i, int n, T c0, int G, int B) {
+  pagerankBlockKernel<<<G, B>>>(a, r, f, vfrom, efrom, i, n, c0);
 }
 
 
@@ -79,11 +79,10 @@ __global__ void pagerankCudaLoopKernel(int *i0, T *t0, T *a, T *r, T *c, T *f, c
   int l = 1;
   pagerankFactorCu(f, vdata, 0, N, p);
   for (; l<L; l++) {
-    multiplyCu(c+i, r+i, f+i, n);
     sumIfNotInplaceCu(t0, r, vdata, N);
     cudaDeviceSynchronize();
     T c0 = (1-p)/N + p*(*t0)/N;
-    pagerankBlockCu(a, c, vfrom, efrom, i, n, c0, GP, BP);
+    pagerankBlockCu(a, r, f, vfrom, efrom, i, n, c0, GP, BP);
     l1NormInplaceCu(t0, r+i, a+i, n);
     cudaDeviceSynchronize();
     if (*t0 < E) break;
